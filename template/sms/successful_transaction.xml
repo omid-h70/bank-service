@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Message>
+    تراکنش از
+    <Sender></Sender>
+    به
+    <Receiver></Receiver>
+    به مبلغ
+    <Amount></Amount>
+    با موفقیت انجام شد
+</Message>

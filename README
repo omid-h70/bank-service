@@ -1,0 +1,26 @@
+#####################################################
+#####################################################
+############
+############ About Ports options inside dockerfile
+############
+#####################################################
+#####################################################
+
+Basically, you have three (four) options:
+
+Neither specify EXPOSE nor -p
+Only specify EXPOSE
+Specify EXPOSE and -p
+Only specify -p which implicitly does EXPOSE
+- If you specify neither EXPOSE nor -p, the service in the container will only be accessible from inside the container itself.
+- If you EXPOSE a port, the service in the container is not accessible from outside Docker, but from inside other Docker containers. So this is good for inter-container communication.
+- If you EXPOSE and -p a port, the service in the container is accessible from anywhere, even outside Docker.
+- If you do -p, but do not EXPOSE, Docker does an implicit EXPOSE. This is because if a port is open to the public, it is automatically also open to other Docker containers. Hence -p includes EXPOSE. This is effectively same as 3).
+
+The reason why both are separated is IMHO because:
+choosing a host port depends on the host and hence does not belong to the Dockerfile (otherwise it would be depending on the host),
+and often it's enough if a service in a container is accessible from other containers.
+The documentation explicitly states:
+
+The EXPOSE instruction exposes ports for use within links.
+It also points you to how to link containers, which basically is the inter-container communication I talked about.

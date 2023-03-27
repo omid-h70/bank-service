@@ -1,0 +1,41 @@
+version: '3'
+services:
+  bank-service:
+    env_file:
+      - .env
+    build:
+      context: ../bank-service
+      dockerfile: ../bank-service/bank-service.dockerfile
+    #restart: always
+    ports:
+      - "${APP_HOST_PORT}:${APP_CONTAINER_PORT}"
+    deploy:
+      mode: replicated
+      replicas: 1
+    container_name: bank-service
+    #environment:
+    #  DNS: "host=postgres port=5433 user=postgres password=password dbname=users_db sslmode=disable timezone=UTC connect_timeout=5"
+  mysqldb:
+    image: mysql
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=admin
+      - MYSQL_DATABASE=data
+    #restart: always
+    ports:
+      - "8080:3306"
+    expose:
+      - "8080"
+    volumes:
+      - ./data/db-data:/var/lib/data
+      - ./data/initdb:/docker-entrypoint-initdb.d
+    container_name: data
+    deploy:
+      mode: replicated
+      replicas: 1
+#volumes:
+#   mysqldb:
+#     driver: local
