@@ -33,6 +33,8 @@ var persianTemplate = []string{
 	"\u06f9",
 }
 
+func GO_UNUSED(sth ...any) {}
+
 func CheckCardNumber(cardNumberStr string) bool {
 	if len(cardNumberStr) != 16 {
 		return false

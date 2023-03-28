@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/omid-h70/bank-service/internal/adapters/handler"
+	"github.com/omid-h70/bank-service/internal/adapter/handler"
 	"github.com/omid-h70/bank-service/internal/core/domain"
-	"github.com/omid-h70/bank-service/internal/core/services"
 	"log"
 	"net/http"
 	"os"
@@ -21,6 +20,7 @@ type serverConfig struct {
 }
 
 type AppConfig struct {
+	handler   handler.AppHandler
 	serverCnf serverConfig
 	//TODO: db repo
 	repo domain.CustomerRepository
@@ -50,16 +50,14 @@ func (cnf AppConfig) ServerAddress(addr string, port string) AppConfig {
 	return cnf
 }
 
+func (cnf AppConfig) AppHandler(accountHandler handler.AccountHandler) AppConfig {
+	cnf.handler.AccountHandler(accountHandler)
+	return cnf
+}
+
 func (cnf AppConfig) Run() {
 	router := mux.NewRouter()
-
-	//wiring
-	ch := handler.CustomerHandler{services.NewCustomerService(cnf.repo)}
-	//ch := handler.CustomerHandler{services.NewCustomerService(repository.NewCustomerRepositoryMySqlDB())}
-
-	//define routes
-	router.HandleFunc("/customers", ch.GetAllCustomers).Methods(http.MethodGet)
-
+	cnf.handler.SetAppHandlers(router)
 	fmt.Println("Try to Run Server On " + cnf.serverCnf.addr + ":" + cnf.serverCnf.port)
 	log.Fatal(http.ListenAndServe(cnf.serverCnf.addr+":"+cnf.serverCnf.port, router))
 }

@@ -1,4 +1,4 @@
-version: '3'
+version: '3.6'
 services:
   bank-service:
     env_file:
@@ -13,8 +13,6 @@ services:
       mode: replicated
       replicas: 1
     container_name: bank-service
-    #environment:
-    #  DNS: "host=postgres port=5433 user=postgres password=password dbname=users_db sslmode=disable timezone=UTC connect_timeout=5"
   mysqldb:
     image: mysql
     env_file:
@@ -36,6 +34,11 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    healthcheck:
+      test: "mysql $$MYSQL_DATABASE -u$$MYSQL_USER -p$$MYSQL_PASSWORD -e 'SELECT 1;'"
+      interval: 20s
+      timeout: 10s
+      retries: 5
 #volumes:
 #   mysqldb:
 #     driver: local
