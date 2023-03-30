@@ -14,9 +14,9 @@ func (s CustomerRepositoryMock) FindAll() (customer []domain.Customer, err error
 	return s.customers, nil
 }
 
-func (s CustomerRepositoryMock) MakeTransferFromAccountToAccount(input domain.CardTransferOutput) (domain.CardTransferOutput, error) {
-	return domain.CardTransferOutput{}, nil
-}
+//func (s CustomerRepositoryMock) MakeTransferFromAccountToAccount(input domain.CardTransferOutput) (domain.CardTransferOutput, error) {
+//	return domain.CardTransferOutput{}, nil
+//}
 
 func NewCustomerRepositoryMock() CustomerRepositoryMock {
 	customers := []domain.Customer{

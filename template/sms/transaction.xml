@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Message>
+    <String>
+        تراکنش از
+    </String>
+    <FromCard></FromCard>
+    <String>
+        به
+    </String>
+    <ToCard></ToCard>
+    <String>
+        به مبلغ
+    </String>
+    <Amount></Amount>
+    <String>
+        با موفقیت انجام شد
+    </String>
+</Message>

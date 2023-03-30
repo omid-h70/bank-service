@@ -1,6 +1,9 @@
 package domain
 
 type PushNotificationService interface {
-	SendSuccessfulMessage(msg string) error
-	SendFailureMessage(msg string) error
+	SendNotifyMessage(sender string, receptor []string, msg string) error
+}
+
+type PushNotificationRepo interface {
+	SendMessage(sender string, receptor []string, msg string) error
 }

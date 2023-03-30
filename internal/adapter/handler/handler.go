@@ -1,50 +1,43 @@
 package handler
 
 import (
-	"encoding/json"
 	"github.com/gorilla/mux"
-	"github.com/omid-h70/bank-service/internal/adapter/action"
-	"github.com/omid-h70/bank-service/internal/core/service"
-
+	"github.com/omid-h70/bank-service/internal/core/domain"
 	"net/http"
 )
 
 type AppHandler struct {
 	accountHandler AccountHandler
+	customerHandle CustomerHandler
+	notifyHandler  domain.PushNotificationService
 }
 
-type CustomerHandler struct {
-	Service service.CustomerService
-}
-
-func (app AppHandler) AccountHandler(hndl AccountHandler) AppHandler {
-	app.accountHandler = hndl
-	return app
-}
-
-func (app AppHandler) SetAppHandlers(router *mux.Router) {
+func (app *AppHandler) SetAppHandlers(router *mux.Router) {
 
 	api := router.PathPrefix("/v1").Subrouter()
-	api.HandleFunc("/transfer", app.accountHandler.HandleTransferCallBack).Methods(http.MethodPost)
-	//api.Handle("/transfers", g.buildFindAllTransferAction()).Methods(http.MethodGet)
-	//
-	//api.Handle("/accounts/{account_id}/balance", g.buildFindBalanceAccountAction()).Methods(http.MethodGet)
-	//api.Handle("/accounts", g.buildCreateAccountAction()).Methods(http.MethodPost)
-	//api.Handle("/accounts", g.buildFindAllAccountAction()).Methods(http.MethodGet)
+	api.HandleFunc("/transfer", app.accountHandler.handleTransferCallBack).Methods(http.MethodPost)
+	api.HandleFunc("/report", app.customerHandle.handleGetCustomerReport).Methods(http.MethodGet)
+	api.HandleFunc("/health", healthCheck).Methods(http.MethodGet)
 
-	api.HandleFunc("/health", action.HealthCheck).Methods(http.MethodGet)
 }
 
-func (c *CustomerHandler) GetAllCustomers(w http.ResponseWriter, r *http.Request) {
-	//it sends to Response Page To Write
+func healthCheck(w http.ResponseWriter, _ *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
 
-	//ustomerList, err := c.Service.GetAllCustomers()
-	//if err != nil {
-	//	log.Fatal("Err1")
-	//}
-	//
-	if r.Header.Get("Content-Type") == "application/json" {
-		w.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(w).Encode("customerList")
+func (app *AppHandler) RegisterService(services ...any) {
+	for _, element := range services {
+		switch service := element.(type) {
+		case domain.CustomerService:
+			app.customerHandle.service = service
+		case domain.TransactionService:
+			app.accountHandler.service = service
+		case domain.PushNotificationService:
+			app.notifyHandler = service
+		}
 	}
+}
+
+func NewAppHandler() AppHandler {
+	return AppHandler{}
 }

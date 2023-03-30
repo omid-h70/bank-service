@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/omid-h70/bank-service/internal/adapter/handler"
-	"github.com/omid-h70/bank-service/internal/core/domain"
 	"log"
 	"net/http"
 	"os"
@@ -20,29 +19,40 @@ type serverConfig struct {
 }
 
 type AppConfig struct {
-	handler   handler.AppHandler
 	serverCnf serverConfig
-	//TODO: db repo
-	repo domain.CustomerRepository
+	////TODO: db repo
+	//repo domain.CustomerRepository
+	////
+	//notifyRepo domain.PushNotificationService
 	//
-	notifyRepo domain.PushNotificationService
+	//customerService domain.CustomerService
+	//transferService domain.TransferService
+
+	appHandler handler.AppHandler
 }
 
-func NewAppConfig() AppConfig {
-	return AppConfig{}
+func NewAppConfig() *AppConfig {
+	return &AppConfig{
+		appHandler: handler.NewAppHandler(),
+	}
 }
 
-func (cnf AppConfig) CustomerRepo(repo domain.CustomerRepository) AppConfig {
-	cnf.repo = repo
+func (cnf *AppConfig) RegisterService(services ...any) *AppConfig {
+	cnf.appHandler.RegisterService(services)
 	return cnf
 }
 
-func (cnf AppConfig) NotifyService(notifyRepo domain.PushNotificationService) AppConfig {
-	cnf.notifyRepo = notifyRepo
-	return cnf
-}
+//func (cnf *AppConfig) CustomerRepo(repo domain.CustomerRepository) *AppConfig {
+//	cnf.repo = repo
+//	return cnf
+//}
+//
+//func (cnf *AppConfig) NotifyService(notifyRepo domain.PushNotificationService) *AppConfig {
+//	cnf.notifyRepo = notifyRepo
+//	return cnf
+//}
 
-func (cnf AppConfig) ServerAddress(addr string, port string) AppConfig {
+func (cnf *AppConfig) ServerAddress(addr string, port string) *AppConfig {
 	cnf.serverCnf = serverConfig{
 		addr,
 		port,
@@ -50,49 +60,29 @@ func (cnf AppConfig) ServerAddress(addr string, port string) AppConfig {
 	return cnf
 }
 
-func (cnf AppConfig) AppHandler(accountHandler handler.AccountHandler) AppConfig {
-	cnf.handler.AccountHandler(accountHandler)
-	return cnf
-}
-
-func (cnf AppConfig) Run() {
+func (cnf *AppConfig) Run() {
 	router := mux.NewRouter()
-	cnf.handler.SetAppHandlers(router)
+	app := handler.NewAppHandler()
+	app.SetAppHandlers(router)
 	fmt.Println("Try to Run Server On " + cnf.serverCnf.addr + ":" + cnf.serverCnf.port)
-	log.Fatal(http.ListenAndServe(cnf.serverCnf.addr+":"+cnf.serverCnf.port, router))
+	cnf.listen(router)
 }
 
-//func (cnf AppConfig) setAppHandlers(router *mux.Router) {
-//	api := router.PathPrefix("/v1").Subrouter()
-//
-//	api.Handle("/transfers", g.buildCreateTransferAction()).Methods(http.MethodPost)
-//	//api.Handle("/transfers", g.buildFindAllTransferAction()).Methods(http.MethodGet)
-//	//
-//	//api.Handle("/accounts/{account_id}/balance", g.buildFindBalanceAccountAction()).Methods(http.MethodGet)
-//	//api.Handle("/accounts", g.buildCreateAccountAction()).Methods(http.MethodPost)
-//	//api.Handle("/accounts", g.buildFindAllAccountAction()).Methods(http.MethodGet)
-//
-//	api.HandleFunc("/health", action.HealthCheck).Methods(http.MethodGet)
-//}
-
-func (cnf AppConfig) listen(router *mux.Router) {
-	//g.setAppHandlers(g.router)
-	//g.middleware.UseHandler(g.router)
+func (cnf *AppConfig) listen(router *mux.Router) {
 
 	server := &http.Server{
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 15 * time.Second,
-		//Addr:         fmt.Sprintf(":%d", g.port),
-		//Handler:      g.middleware,
+		Addr:         fmt.Sprintf("%s:%s", cnf.serverCnf.addr, cnf.serverCnf.port),
+		Handler:      router,
 	}
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		//g.log.WithFields(logger.Fields{"port": g.port}).Infof("Starting HTTP Server")
 		if err := server.ListenAndServe(); err != nil {
-			//g.log.WithError(err).Fatalln("Error starting HTTP server")
+			log.Fatalln("Error starting HTTP server")
 		}
 	}()
 
@@ -104,8 +94,8 @@ func (cnf AppConfig) listen(router *mux.Router) {
 	}()
 
 	if err := server.Shutdown(ctx); err != nil {
-		//g.log.WithError(err).Fatalln("Server Shutdown Failed")
+		log.Fatal("Server Shutdown Failed")
 	}
 
-	//g.log.Infof("Service down")
+	log.Fatal("Service down")
 }
