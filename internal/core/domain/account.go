@@ -28,7 +28,7 @@ type (
 		Balance         int64  `json:"card_balance"`
 		TransferTime    string `json:"date_time"`
 		AccountRuleInfo AccountRule
-		PhoneNumber     string `json:"phone_num"`
+		CustomerInfo    Customer
 	}
 )
 

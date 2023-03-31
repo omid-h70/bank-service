@@ -18,10 +18,8 @@ func NewKaveNegarNotifyMsg(apikey string) KaveNegarNotifyMsg {
 }
 
 func (notify KaveNegarNotifyMsg) SendMessage(sender string, receptor []string, message string) error {
-	api := kavenegar.New(" your apikey ")
-	//sender := ""
-	//receptor := []string{"", ""}
-	//message := "Hello Go!"
+	api := kavenegar.New(notify.apiKey)
+
 	if res, err := api.Message.Send(sender, receptor, message, nil); err != nil {
 		switch err := err.(type) {
 		case *kavenegar.APIError:

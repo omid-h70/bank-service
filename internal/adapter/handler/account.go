@@ -15,7 +15,8 @@ var (
 )
 
 type AccountHandler struct {
-	service domain.TransactionService
+	service       domain.TransactionService
+	notifyService domain.PushNotificationService
 }
 
 type TransactionRequest struct {
@@ -58,14 +59,40 @@ func (a *AccountHandler) handleTransferCallBack(w http.ResponseWriter, r *http.R
 	input.SetCardToInfo(domain.NewCard(req.CardToNum))
 	input.SetAmount(inAmount)
 
-	err = a.service.ExecuteCardTransfer(r.Context(), input)
+	accountListInfo := make([]domain.AccountInfoOutput, 2)
+	accountListInfo, err = a.service.ExecuteCardTransfer(r.Context(), input)
 	if err != nil {
 		response.NewError(err, http.StatusBadRequest).Send(w)
 		return
 	}
 
-	//fmt.Println(output)
-	response.NewSuccess("done", 200).Send(w)
+	var sender string
+	senderReceptorList := []string{accountListInfo[0].CustomerInfo.PhoneNum}
+	receiverReceptorList := []string{accountListInfo[1].CustomerInfo.PhoneNum}
+
+	senderMsg := a.notifyService.GetSenderNotifyMessage()
+	receiverMsg := a.notifyService.GetReceiverNotifyMessage()
+
+	go func() {
+		a.notifyService.SendNotifyMessage(sender, senderReceptorList, senderMsg)
+		a.notifyService.SendNotifyMessage(sender, receiverReceptorList, receiverMsg)
+	}()
+
+	outData := map[string]map[string]string{
+		"SenderMsg": {
+			"To":  accountListInfo[0].CustomerInfo.PhoneNum,
+			"Msg": senderMsg,
+		},
+		"ReceiverMsg": {
+			"To":  accountListInfo[1].CustomerInfo.PhoneNum,
+			"Msg": receiverMsg,
+		},
+		"status": {
+			"Message": "Done",
+		},
+	}
+
+	response.NewSuccess(outData, 200).Send(w)
 }
 
 func NewAccountHandler(service domain.TransactionService) AccountHandler {

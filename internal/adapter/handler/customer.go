@@ -1,15 +1,10 @@
 package handler
 
 import (
-	"encoding/json"
+	"github.com/omid-h70/bank-service/internal/adapter/response"
 	"github.com/omid-h70/bank-service/internal/core/domain"
-	"github.com/omid-h70/bank-service/internal/core/service"
 	"net/http"
 )
-
-//var (
-//	ErrCInvalidApplicationType = errors.New("Request Application Type Must be jsob")
-//)
 
 type CustomerHandler struct {
 	service domain.CustomerService
@@ -18,17 +13,15 @@ type CustomerHandler struct {
 func (c *CustomerHandler) handleGetCustomerReport(w http.ResponseWriter, r *http.Request) {
 	//it sends to Response Page To Write
 
-	//ustomerList, err := c.Service.GetAllCustomers()
-	//if err != nil {
-	//	log.Fatal("Err1")
-	//}
-	//
-	if r.Header.Get("Content-Type") == "application/json" {
-		w.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(w).Encode("customerList")
+	customerList, err := c.service.GetMostActiveCustomersWithinTime(r.Context(), 10, 1000)
+	if err != nil {
+		response.NewError(err, http.StatusBadRequest).Send(w)
+		return
 	}
+
+	response.NewSuccess(customerList, 200).Send(w)
 }
 
-func NewCustomerHandler(service service.ReportService) CustomerHandler {
-	return CustomerHandler{service: service}
+func NewCustomerHandler(customerService domain.CustomerService) CustomerHandler {
+	return CustomerHandler{service: customerService}
 }

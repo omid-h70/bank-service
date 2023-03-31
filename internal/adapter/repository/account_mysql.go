@@ -22,13 +22,15 @@ type AccountRepositoryMySqlDB struct {
 func (s *AccountRepositoryMySqlDB) GetAccountInfoByCard(ctx context.Context, cardNum string, mode int) (domain.AccountInfoOutput, error) {
 
 	var (
-		query string = `SELECT card.card_id, card.account_id, account.account_balance, account_rule.min_amount, account_rule.max_amount
-				FROM card 
-				LEFT JOIN account 
-				ON card.account_id = account.account_id 
-				LEFT JOIN account_rule
-				ON account.account_rule_id=account_rule.account_rule_id
-				WHERE card.card_number=?`
+		query string = `SELECT card.card_id, card.account_id, account.account_balance, account_rule.min_amount, account_rule.max_amount, account_rule.transaction_fee, customer.phone_number
+			FROM card
+			LEFT JOIN account
+			ON card.account_id = account.account_id
+			LEFT JOIN account_rule
+			ON account.account_rule_id=account_rule.account_rule_id
+			LEFT JOIN customer
+			ON customer.customer_id = account.customer_id
+			WHERE card.card_number=?`
 
 		//result  sql.Result
 		err     error
@@ -50,6 +52,8 @@ func (s *AccountRepositoryMySqlDB) GetAccountInfoByCard(ctx context.Context, car
 				&infoOut.Balance,
 				&infoOut.AccountRuleInfo.MinAmount,
 				&infoOut.AccountRuleInfo.MaxAmount,
+				&infoOut.AccountRuleInfo.TransactionFee,
+				&infoOut.CustomerInfo.PhoneNum,
 			)
 		}
 	case domain.NormalInfo:
@@ -60,7 +64,7 @@ func (s *AccountRepositoryMySqlDB) GetAccountInfoByCard(ctx context.Context, car
 	}
 
 	//helper.GO_UNUSED(result, err)
-	return infoOut, nil
+	return infoOut, err
 }
 
 func (s *AccountRepositoryMySqlDB) GetBalanceByAccount(ctx context.Context, accountId string, mode int) (int64, error) {

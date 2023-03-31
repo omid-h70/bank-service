@@ -14,18 +14,13 @@ type (
 	}
 )
 
-// NewTransferService creates new NewTransferService with its dependencies
-func NewTransferService(a domain.TransactionRepository, t time.Duration) TransactionServiceImpl {
+func NewTransactionService(a domain.TransactionRepository, t time.Duration) TransactionServiceImpl {
 	return TransactionServiceImpl{
 		repo:       a,
 		ctxTimeout: t,
 	}
 }
 
-func (t TransactionServiceImpl) ExecuteCardTransfer(ctx context.Context, input domain.Transaction) error {
-	err := t.repo.MakeTransferFromCardToCard(ctx, input)
-	if err != nil {
-		//t.notifyHandler.SendSuccessfulMessage("done")
-	}
-	return err
+func (t TransactionServiceImpl) ExecuteCardTransfer(ctx context.Context, input domain.Transaction) ([]domain.AccountInfoOutput, error) {
+	return t.repo.MakeTransferFromCardToCard(ctx, input)
 }

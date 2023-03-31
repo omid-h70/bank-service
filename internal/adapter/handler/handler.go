@@ -2,7 +2,9 @@ package handler
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/omid-h70/bank-service/internal/adapter/response"
 	"github.com/omid-h70/bank-service/internal/core/domain"
+	"github.com/pkg/errors"
 	"net/http"
 )
 
@@ -15,27 +17,25 @@ type AppHandler struct {
 func (app *AppHandler) SetAppHandlers(router *mux.Router) {
 
 	api := router.PathPrefix("/v1").Subrouter()
+	api.NotFoundHandler = http.HandlerFunc(defaultHandler)
 	api.HandleFunc("/transfer", app.accountHandler.handleTransferCallBack).Methods(http.MethodPost)
 	api.HandleFunc("/report", app.customerHandle.handleGetCustomerReport).Methods(http.MethodGet)
 	api.HandleFunc("/health", healthCheck).Methods(http.MethodGet)
+}
 
+func defaultHandler(w http.ResponseWriter, _ *http.Request) {
+	response.NewError(errors.New("Invalid request"), http.StatusBadRequest).Send(w)
 }
 
 func healthCheck(w http.ResponseWriter, _ *http.Request) {
-	w.WriteHeader(http.StatusOK)
+	response.NewSuccess("Yo I'm up", http.StatusOK).Send(w)
 }
 
-func (app *AppHandler) RegisterService(services ...any) {
-	for _, element := range services {
-		switch service := element.(type) {
-		case domain.CustomerService:
-			app.customerHandle.service = service
-		case domain.TransactionService:
-			app.accountHandler.service = service
-		case domain.PushNotificationService:
-			app.notifyHandler = service
-		}
-	}
+func (app *AppHandler) RegisterService(customer domain.CustomerService, transaction domain.TransactionService, notify domain.PushNotificationService) {
+	app.customerHandle.service = customer
+	app.accountHandler.service = transaction
+	app.notifyHandler = notify
+	app.accountHandler.notifyService = notify
 }
 
 func NewAppHandler() AppHandler {

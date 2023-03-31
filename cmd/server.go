@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/omid-h70/bank-service/internal/adapter/handler"
+	"github.com/omid-h70/bank-service/internal/core/domain"
 	"log"
 	"net/http"
 	"os"
@@ -37,8 +38,8 @@ func NewAppConfig() *AppConfig {
 	}
 }
 
-func (cnf *AppConfig) RegisterService(services ...any) *AppConfig {
-	cnf.appHandler.RegisterService(services)
+func (cnf *AppConfig) RegisterService(customer domain.CustomerService, transaction domain.TransactionService, notify domain.PushNotificationService) *AppConfig {
+	cnf.appHandler.RegisterService(customer, transaction, notify)
 	return cnf
 }
 
@@ -62,8 +63,8 @@ func (cnf *AppConfig) ServerAddress(addr string, port string) *AppConfig {
 
 func (cnf *AppConfig) Run() {
 	router := mux.NewRouter()
-	app := handler.NewAppHandler()
-	app.SetAppHandlers(router)
+
+	cnf.appHandler.SetAppHandlers(router)
 	fmt.Println("Try to Run Server On " + cnf.serverCnf.addr + ":" + cnf.serverCnf.port)
 	cnf.listen(router)
 }

@@ -13,7 +13,7 @@ var (
 
 type (
 	TransactionService interface {
-		ExecuteCardTransfer(context.Context, Transaction) error
+		ExecuteCardTransfer(context.Context, Transaction) ([]AccountInfoOutput, error)
 	}
 
 	Transaction struct {
@@ -24,7 +24,7 @@ type (
 	}
 
 	TransactionRepository interface {
-		MakeTransferFromCardToCard(ctx context.Context, input Transaction) error
+		MakeTransferFromCardToCard(ctx context.Context, input Transaction) ([]AccountInfoOutput, error)
 		InsertTransaction(ctx context.Context, fromAccount AccountInfoOutput, toAccount AccountInfoOutput, val int64) error
 	}
 )
@@ -60,7 +60,7 @@ func (t *Transaction) ProcessTransactionMinus(amount int64, rule AccountRule) (i
 		return tmpAmount, err
 	}
 
-	tmpAmount = amount - t.amount
+	tmpAmount = amount - t.amount - rule.TransactionFee
 	if tmpAmount < 0 {
 		return amount, ErrInvalidAccountBalance
 	}

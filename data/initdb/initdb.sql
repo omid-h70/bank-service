@@ -45,11 +45,12 @@ CREATE TABLE `account_rule`(
 `account_rule_id` int(5) NOT NULL AUTO_INCREMENT,
 `min_amount` bigint NOT NULL,
 `max_amount` bigint NOT NULL,
+`transaction_fee` bigint NOT NULL,
 PRIMARY KEY (`account_rule_id`)
 )ENGINE=InnoDB AUTO_INCREMENT = 3002 DEFAULT CHARSET=latin1;
 
 INSERT INTO `account_rule` VALUES
-(3001, 10000, 500000000);
+(3001, 10000, 500000000, 500);
 
 
 DROP TABLE IF EXISTS `card`;
@@ -82,7 +83,9 @@ CREATE TABLE `transaction`(
 `transaction_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 PRIMARY KEY (`transaction_id`),
 KEY `transaction_FK_1` (`card_id_to`),
-CONSTRAINT `transaction_FK_1` FOREIGN KEY (`card_id_to`) REFERENCES `card` (`card_id`)
+CONSTRAINT `transaction_FK_1` FOREIGN KEY (`card_id_to`) REFERENCES `card` (`card_id`),
+KEY `transaction_FK_2` (`card_id_from`),
+CONSTRAINT `transaction_FK_1` FOREIGN KEY (`card_id_from`) REFERENCES `card` (`card_id`)
 )ENGINE=InnoDB AUTO_INCREMENT = 1006 DEFAULT CHARSET=latin1;
 
 SELECT "InitDB Done >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
