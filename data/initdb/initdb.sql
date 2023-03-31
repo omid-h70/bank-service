@@ -37,7 +37,7 @@ INSERT INTO `account` VALUES
 (2002, 1002, 3001, '2023-09-02 00:00:01', 100000,'1111',1),
 (2003, 1003, 3001, '2023-09-03 00:00:02', 150000,'1234',1),
 (2004, 1004, 3001, '2023-09-04 00:00:03', 700000,'4567',1),
-(2005, 1005, 3001, '2023-09-05 00:00:04', 800000,'9876',1),
+(2005, 1005, 3001, '2023-09-05 00:00:04', 800000,'9876',1);
 
 
 DROP TABLE IF EXISTS `account_rule`;
@@ -87,5 +87,3 @@ CONSTRAINT `transaction_FK_1` FOREIGN KEY (`card_id_to`) REFERENCES `card` (`car
 KEY `transaction_FK_2` (`card_id_from`),
 CONSTRAINT `transaction_FK_1` FOREIGN KEY (`card_id_from`) REFERENCES `card` (`card_id`)
 )ENGINE=InnoDB AUTO_INCREMENT = 1006 DEFAULT CHARSET=latin1;
-
-SELECT "InitDB Done >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
