@@ -63,7 +63,6 @@ func (s *AccountRepositoryMySqlDB) GetAccountInfoByCard(ctx context.Context, car
 		}
 	}
 
-	//helper.GO_UNUSED(result, err)
 	return infoOut, err
 }
 

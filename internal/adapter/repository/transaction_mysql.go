@@ -6,13 +6,15 @@ import (
 	"fmt"
 	"github.com/omid-h70/bank-service/internal/core/domain"
 	"github.com/pkg/errors"
+	"strconv"
 )
 
 var (
-	ErrTransRepoDBInvalidTransactionExp     = errors.New("invalid NULL Transaction Exception")
-	ErrTransRepoDBUpdatingBalanceFailed     = errors.New("Error while updating Balance")
-	ErrTransRepoDBWhileFetchingAccountInfo  = errors.New("Error while Fetching Account Info")
-	ErrTransRepoDBWhileInsertingTransaction = errors.New("Error In Transaction")
+	ErrTransRepoDBInvalidTransactionExp             = errors.New("invalid NULL Transaction Exception")
+	ErrTransRepoDBUpdatingBalanceFailed             = errors.New("Error while updating Balance")
+	ErrTransRepoDBWhileFetchingAccountInfo          = errors.New("Error while Fetching Account Info")
+	ErrTransRepoDBWhileInsertingTransaction         = errors.New("Error In Transaction")
+	ErrTransRepoDBCardIdToCardFromHasTheSameAccount = errors.New("CardFrom and CardTo Has The Same Account")
 )
 
 type TransactionRepositoryMySqlDB struct {
@@ -47,6 +49,10 @@ func (t *TransactionRepositoryMySqlDB) MakeTransferFromCardToCard(ctx context.Co
 		return accountInfoList, ErrTransRepoDBWhileFetchingAccountInfo
 	}
 
+	if cardFromInfo.AccountID == cardToInfo.AccountID {
+		return accountInfoList, ErrTransRepoDBCardIdToCardFromHasTheSameAccount
+	}
+
 	//---------------Calculations
 	cardFromInfo.Balance, errFrom = input.ProcessTransactionMinus(cardFromInfo.Balance, cardFromInfo.AccountRuleInfo)
 	if errFrom != nil {
@@ -74,9 +80,14 @@ func (t *TransactionRepositoryMySqlDB) MakeTransferFromCardToCard(ctx context.Co
 	if err = tx.Commit(); err != nil {
 		//return fail(err)
 	}
-	//Make Sure Everything is Fine
+	//Make Sure Everything is Fine- Updating Info
+	cardFromInfo.TransactionAmount = strconv.FormatInt(input.Amount(), 10)
+	cardFromInfo.CardNum = cardFrom.CardNum()
 	accountInfoList[0] = cardFromInfo
-	accountInfoList[1] = cardFromInfo
+
+	cardToInfo.TransactionAmount = strconv.FormatInt(input.Amount(), 10)
+	cardToInfo.CardNum = cardTo.CardNum()
+	accountInfoList[1] = cardToInfo
 	return accountInfoList, nil
 }
 

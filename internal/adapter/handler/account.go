@@ -5,24 +5,37 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/omid-h70/bank-service/internal/adapter/response"
 	"github.com/omid-h70/bank-service/internal/core/domain"
+	"github.com/omid-h70/bank-service/internal/core/helper"
+	"github.com/omid-h70/bank-service/internal/core/service"
 	"github.com/pkg/errors"
 	"net/http"
 	"strconv"
 )
 
 var (
-	ErrInvalidApplicationType = errors.New("Request Application Type Must be json")
+	ErrInvalidApplicationType   = errors.New("Request Application Type Must be json")
+	ErrInvalidCardNumberPattern = errors.New("Card Number Is invalid")
+	ErrInvalidDataBaseQuery     = errors.New("DataBase Error")
 )
 
 type AccountHandler struct {
-	service       domain.TransactionService
+	service       service.TransactionService
 	notifyService domain.PushNotificationService
 }
 
 type TransactionRequest struct {
-	CardFromNum       string `json:"card_from_number" validate:"required"`
-	CardToNum         string `json:"card_to_number" validate:"required"`
+	CardFromNum       string `json:"card_from_number" validate:"required,len=16"`
+	CardToNum         string `json:"card_to_number" validate:"required,len=16"`
 	TransactionAmount string `json:"transaction_amount" validate:"required"`
+}
+
+const (
+	WITHDRAW_FILE_TEMPLATE = "/template/sms/withdraw.xml"
+	DEPOSIT_FILE_TEMPLATE  = "/template/sms/deposit.xml"
+)
+
+func fixArabicPersianStrings(t *TransactionRequest) {
+
 }
 
 func (a *AccountHandler) handleTransferCallBack(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +47,8 @@ func (a *AccountHandler) handleTransferCallBack(w http.ResponseWriter, r *http.R
 	}
 	defer r.Body.Close()
 
-	if r.Header.Get("Content-Type") != "application/json" {
+	if r.Header.Get("Content-Type") != "application/json" &&
+		r.Header.Get("Content-Type") != "application/json; charset=UTF-8" {
 		response.NewError(ErrInvalidApplicationType, http.StatusBadRequest).Send(w)
 		return
 	}
@@ -46,8 +60,16 @@ func (a *AccountHandler) handleTransferCallBack(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	//Mapping Request To Domain
+	//Fix Arabic Persian
+	fixArabicPersianStrings(&req)
 
+	//Check Card Number Pattern
+	if !helper.CheckCardNumber(req.CardFromNum) || !helper.CheckCardNumber(req.CardToNum) {
+		response.NewError(ErrInvalidCardNumberPattern, http.StatusBadRequest).Send(w)
+		return
+	}
+
+	//Mapping Request To Domain
 	inAmount, parseErr := strconv.ParseInt(req.TransactionAmount, 10, 64)
 	if parseErr != nil {
 		response.NewError(err, http.StatusBadRequest).Send(w)
@@ -59,19 +81,21 @@ func (a *AccountHandler) handleTransferCallBack(w http.ResponseWriter, r *http.R
 	input.SetCardToInfo(domain.NewCard(req.CardToNum))
 	input.SetAmount(inAmount)
 
-	accountListInfo := make([]domain.AccountInfoOutput, 2)
-	accountListInfo, err = a.service.ExecuteCardTransfer(r.Context(), input)
-	if err != nil {
+	accountListInfo, err := a.service.ExecuteCardTransfer(r.Context(), input)
+	if err != nil || len(accountListInfo) != 2 {
 		response.NewError(err, http.StatusBadRequest).Send(w)
 		return
 	}
 
-	var sender string
-	senderReceptorList := []string{accountListInfo[0].CustomerInfo.PhoneNum}
-	receiverReceptorList := []string{accountListInfo[1].CustomerInfo.PhoneNum}
+	cardFromInfoOut := accountListInfo[0]
+	cardToInfoOut := accountListInfo[1]
 
-	senderMsg := a.notifyService.GetSenderNotifyMessage()
-	receiverMsg := a.notifyService.GetReceiverNotifyMessage()
+	var sender string
+	senderReceptorList := []string{cardFromInfoOut.CustomerInfo.PhoneNum}
+	receiverReceptorList := []string{cardToInfoOut.CustomerInfo.PhoneNum}
+
+	senderMsg := a.notifyService.GetSenderNotifyMessage(cardFromInfoOut, WITHDRAW_FILE_TEMPLATE)
+	receiverMsg := a.notifyService.GetReceiverNotifyMessage(cardToInfoOut, DEPOSIT_FILE_TEMPLATE)
 
 	go func() {
 		a.notifyService.SendNotifyMessage(sender, senderReceptorList, senderMsg)
@@ -80,11 +104,11 @@ func (a *AccountHandler) handleTransferCallBack(w http.ResponseWriter, r *http.R
 
 	outData := map[string]map[string]string{
 		"SenderMsg": {
-			"To":  accountListInfo[0].CustomerInfo.PhoneNum,
+			"To":  cardFromInfoOut.CustomerInfo.PhoneNum,
 			"Msg": senderMsg,
 		},
 		"ReceiverMsg": {
-			"To":  accountListInfo[1].CustomerInfo.PhoneNum,
+			"To":  cardToInfoOut.CustomerInfo.PhoneNum,
 			"Msg": receiverMsg,
 		},
 		"status": {
@@ -95,6 +119,6 @@ func (a *AccountHandler) handleTransferCallBack(w http.ResponseWriter, r *http.R
 	response.NewSuccess(outData, 200).Send(w)
 }
 
-func NewAccountHandler(service domain.TransactionService) AccountHandler {
-	return AccountHandler{service: service}
+func NewAccountHandler(service service.TransactionService, notifyService domain.PushNotificationService) AccountHandler {
+	return AccountHandler{service: service, notifyService: notifyService}
 }

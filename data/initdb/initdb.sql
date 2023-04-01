@@ -85,5 +85,5 @@ PRIMARY KEY (`transaction_id`),
 KEY `transaction_FK_1` (`card_id_to`),
 CONSTRAINT `transaction_FK_1` FOREIGN KEY (`card_id_to`) REFERENCES `card` (`card_id`),
 KEY `transaction_FK_2` (`card_id_from`),
-CONSTRAINT `transaction_FK_1` FOREIGN KEY (`card_id_from`) REFERENCES `card` (`card_id`)
+CONSTRAINT `transaction_FK_2` FOREIGN KEY (`card_id_from`) REFERENCES `card` (`card_id`)
 )ENGINE=InnoDB AUTO_INCREMENT = 1006 DEFAULT CHARSET=latin1;

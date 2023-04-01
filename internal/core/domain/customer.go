@@ -9,10 +9,6 @@ type Customer struct {
 	PhoneNum string `json:"phone_num"`
 }
 
-type CustomerService interface {
-	GetMostActiveCustomersWithinTime(ctx context.Context, count int, time int) ([]CustomerReportOut, error)
-}
-
 type CustomerReportOut struct {
 	CustomerID      string
 	TransactionId   string

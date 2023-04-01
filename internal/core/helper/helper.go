@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
 	"path/filepath"
 	"runtime"
@@ -63,7 +62,6 @@ func CheckCardNumber(cardNumberStr string) bool {
 }
 
 func FixCardNumberString(cardNumber string) string {
-
 	tmpString := cardNumber
 	//tmpString := "۱۰۳۶۷۵۱"
 
@@ -71,9 +69,9 @@ func FixCardNumberString(cardNumber string) string {
 		tmpString = strings.Replace(tmpString, persianTemplate[i], strconv.Itoa(i), -1)
 		tmpString = strings.Replace(tmpString, arabicTemplate[i], strconv.Itoa(i), -1)
 
-		fmt.Printf("%s => %s or %s \n", strconv.Itoa(i), persianTemplate[i], arabicTemplate[i])
+		//fmt.Printf("%s => %s or %s \n", strconv.Itoa(i), persianTemplate[i], arabicTemplate[i])
 	}
-	fmt.Printf("%s", tmpString)
+	//fmt.Printf("%s", tmpString)
 	return tmpString
 }
 

@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/omid-h70/bank-service/internal/adapter/handler"
 	"github.com/omid-h70/bank-service/internal/core/domain"
+	"github.com/omid-h70/bank-service/internal/core/service"
 	"log"
 	"net/http"
 	"os"
@@ -14,21 +15,13 @@ import (
 	"time"
 )
 
-type serverConfig struct {
-	addr string
-	port string
+type ServerConfig struct {
+	Addr string
+	Port string
 }
 
 type AppConfig struct {
-	serverCnf serverConfig
-	////TODO: db repo
-	//repo domain.CustomerRepository
-	////
-	//notifyRepo domain.PushNotificationService
-	//
-	//customerService domain.CustomerService
-	//transferService domain.TransferService
-
+	serverCnf  ServerConfig
 	appHandler handler.AppHandler
 }
 
@@ -38,7 +31,7 @@ func NewAppConfig() *AppConfig {
 	}
 }
 
-func (cnf *AppConfig) RegisterService(customer domain.CustomerService, transaction domain.TransactionService, notify domain.PushNotificationService) *AppConfig {
+func (cnf *AppConfig) RegisterService(customer service.CustomerService, transaction service.TransactionService, notify domain.PushNotificationService) *AppConfig {
 	cnf.appHandler.RegisterService(customer, transaction, notify)
 	return cnf
 }
@@ -53,11 +46,8 @@ func (cnf *AppConfig) RegisterService(customer domain.CustomerService, transacti
 //	return cnf
 //}
 
-func (cnf *AppConfig) ServerAddress(addr string, port string) *AppConfig {
-	cnf.serverCnf = serverConfig{
-		addr,
-		port,
-	}
+func (cnf *AppConfig) ServerAddress(servConfig ServerConfig) *AppConfig {
+	cnf.serverCnf = servConfig
 	return cnf
 }
 
@@ -65,7 +55,7 @@ func (cnf *AppConfig) Run() {
 	router := mux.NewRouter()
 
 	cnf.appHandler.SetAppHandlers(router)
-	fmt.Println("Try to Run Server On " + cnf.serverCnf.addr + ":" + cnf.serverCnf.port)
+	fmt.Println("Try to Run Server On " + cnf.serverCnf.Addr + ":" + cnf.serverCnf.Port)
 	cnf.listen(router)
 }
 
@@ -74,7 +64,7 @@ func (cnf *AppConfig) listen(router *mux.Router) {
 	server := &http.Server{
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 15 * time.Second,
-		Addr:         fmt.Sprintf("%s:%s", cnf.serverCnf.addr, cnf.serverCnf.port),
+		Addr:         fmt.Sprintf("%s:%s", cnf.serverCnf.Addr, cnf.serverCnf.Port),
 		Handler:      router,
 	}
 

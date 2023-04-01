@@ -7,6 +7,11 @@ import (
 )
 
 type (
+	// go:generate mockgen -destination=../../mocks/service/mockCustomerService.go -package=service github.com/omid-h70/bank-service/internal/core/service CustomerService
+	CustomerService interface {
+		GetMostActiveCustomersWithinTime(ctx context.Context, count int, time int) ([]domain.CustomerReportOut, error)
+	}
+
 	CustomerServiceImpl struct {
 		repo       domain.CustomerRepository
 		ctxTimeout time.Duration

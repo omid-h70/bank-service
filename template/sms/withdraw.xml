@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Message>
+    <String>
+        برداشت از
+    </String>
+    <FromCard></FromCard>
+    <String>
+        به مبلغ
+    </String>
+    <Amount></Amount>
+    <String>
+        مانده
+    </String>
+    <Balance></Balance>
+</Message>

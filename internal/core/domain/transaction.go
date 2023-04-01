@@ -12,10 +12,6 @@ var (
 )
 
 type (
-	TransactionService interface {
-		ExecuteCardTransfer(context.Context, Transaction) ([]AccountInfoOutput, error)
-	}
-
 	Transaction struct {
 		id       string
 		cardFrom Card

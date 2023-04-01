@@ -1,11 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <Message>
     <String>
-        تراکنش از
-    </String>
-    <FromCard></FromCard>
-    <String>
-        به
+        واریز
     </String>
     <ToCard></ToCard>
     <String>
@@ -13,6 +9,7 @@
     </String>
     <Amount></Amount>
     <String>
-        با موفقیت انجام شد
+        مانده
     </String>
+    <Balance></Balance>
 </Message>

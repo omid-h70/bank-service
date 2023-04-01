@@ -23,12 +23,14 @@ type (
 	// CardTransferOutput output data
 
 	AccountInfoOutput struct {
-		AccountID       string `json:"account_id"`
-		CardId          string `json:"card_id"`
-		Balance         int64  `json:"card_balance"`
-		TransferTime    string `json:"date_time"`
-		AccountRuleInfo AccountRule
-		CustomerInfo    Customer
+		AccountID         string `json:"account_id"`
+		CardId            string `json:"card_id"`
+		CardNum           string `json:"card_num"`
+		TransactionAmount string `json:"transaction_amount"`
+		Balance           int64  `json:"card_balance"`
+		TransferTime      string `json:"date_time"`
+		AccountRuleInfo   AccountRule
+		CustomerInfo      Customer
 	}
 )
 
@@ -43,6 +45,7 @@ const (
 
 type (
 	AccountRepository interface {
+		CheckCardsAccountNumber(CardFrom string, CardTo string) error
 		GetAccountInfoByCard(ctx context.Context, cardNum string, mode int) (AccountInfoOutput, error)
 		UpdateAccountBalance(ctx context.Context, accountId string, val int64) error
 	}

@@ -1,4 +1,4 @@
-version: '3.6'
+version: '3'
 services:
   bank-service:
     env_file:
@@ -9,10 +9,14 @@ services:
     #restart: always
     ports:
       - "${APP_HOST_PORT}:${APP_CONTAINER_PORT}"
+    expose:
+      - ${APP_HOST_PORT}
     deploy:
       mode: replicated
       replicas: 1
     container_name: bank-service
+    depends_on:
+      - mysqldb
   mysqldb:
     image: mysql
     env_file:
@@ -24,21 +28,21 @@ services:
       - MYSQL_DATABASE=data
     #restart: always
     ports:
-      - "8080:3306"
+      - "3306:3306"
     expose:
-      - "8080"
+      - "3306"
     volumes:
       - ./data/db-data:/var/lib/data
       - ./data/initdb:/docker-entrypoint-initdb.d
-    container_name: data
+    container_name: mysql_data
     deploy:
       mode: replicated
       replicas: 1
-    healthcheck:
-      test: "mysql $$MYSQL_DATABASE -u$$MYSQL_USER -p$$MYSQL_PASSWORD -e 'SELECT 1;'"
-      interval: 20s
-      timeout: 10s
-      retries: 5
+#    healthcheck:
+#      test: "mysql $$MYSQL_DATABASE -u$$MYSQL_USER -p$$MYSQL_PASSWORD -e 'SELECT 1;'"
+#      interval: 20s
+#      timeout: 10s
+#      retries: 5
 #volumes:
 #   mysqldb:
-#     driver: local
+#    driver: local

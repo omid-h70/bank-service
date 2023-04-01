@@ -7,6 +7,10 @@ import (
 )
 
 type (
+	TransactionService interface {
+		ExecuteCardTransfer(context.Context, domain.Transaction) ([]domain.AccountInfoOutput, error)
+	}
+
 	TransactionServiceImpl struct {
 		notifyHandler domain.PushNotificationService
 		repo          domain.TransactionRepository
