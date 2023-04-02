@@ -1,7 +1,8 @@
 
 # Welcome To Go Simple Bank Service 
-Go Bank Transfer is a simple API for some card-to-card transaction routines, and then get the reports out
+Go Bank Transfer is a simple API for some card-to-card transaction routines with notification messages, and then get the reports out
 of it
+## Software Architecture
 This is an attempt to implement a clean architecture, and some other design patterns such as adapter and singelton in combination
 ## Requirements/Dependencies
 - Docker
