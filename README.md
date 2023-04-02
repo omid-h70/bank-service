@@ -1,5 +1,5 @@
 
-# Welcome To Go Simple Bank Service Channel
+# Welcome To Go Simple Bank Service 
 Go Bank Transfer is a simple API for some card-to-card transaction routines, and then get the reports out
 of it
 This is an attempt to implement a clean architecture, and some other design patterns such as adapter and singelton in combination
