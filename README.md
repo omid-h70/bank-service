@@ -22,9 +22,10 @@ will do everything for you to come up and runnig
 
 
 ## Test Endpoints API using Curl
-you can test Apis with curl or post man as follow
+you can test APIs with curl or post man as follow
  ##### Request
-```curl -i --request POST 'http://localhost:8000/v1/transfer' \
+```
+curl -i --request POST 'http://localhost:8000/v1/transfer' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "from_card_number": "5022291302421266",
