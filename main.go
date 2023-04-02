@@ -40,9 +40,9 @@ func main() {
 		DbUser:       os.Getenv("MYSQL_USER"),
 		DbPass:       os.Getenv("MYSQL_PASS"),
 	}
-	dbClientConfig = dbTestClientConfig
+	//dbClientConfig = dbTestClientConfig
 	fmt.Println("Db Config", dbClientConfig)
-	//appDbClient := repository.NewRepositoryMySqlDB(dbClientConfig)
+	appDbClient := repository.NewRepositoryMySqlDB(dbClientConfig)
 
 	//Setting Services And Handlers
 	appTransactionService := service.NewTransactionService(repository.NewTransactionRepositoryMySqlDB(appDbClient), 1000)
