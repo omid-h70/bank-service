@@ -42,7 +42,7 @@ func main() {
 	}
 	dbClientConfig = dbTestClientConfig
 	fmt.Println("Db Config", dbClientConfig)
-	appDbClient := repository.NewRepositoryMySqlDB(dbClientConfig)
+	//appDbClient := repository.NewRepositoryMySqlDB(dbClientConfig)
 
 	//Setting Services And Handlers
 	appTransactionService := service.NewTransactionService(repository.NewTransactionRepositoryMySqlDB(appDbClient), 1000)
@@ -53,7 +53,7 @@ func main() {
 		Addr: os.Getenv("APP_SERVER_ADDR"),
 		Port: os.Getenv("APP_HOST_PORT"),
 	}
-	serverConfig = testServerConfig
+	//serverConfig = testServerConfig
 
 	cmd.NewAppConfig().
 		ServerAddress(serverConfig).
