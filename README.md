@@ -50,6 +50,10 @@ curl -i --request POST 'http://localhost:8000/v1/transfer' \
     }
 }
 ```
+##### Templating
+you can also change text and formates of these messages by just changing xml files inside of `/template` folder one for `deposit.xml` and one for `withdraw.xml`
+
+
 it also supports Persian  Or Arabic Numbers like below but of course its and error because of wrong card number pattern !!!
 ##### Arabic/Persian Request 
 ```
