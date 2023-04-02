@@ -2,8 +2,8 @@
 # Build in Vendor mod
 #
 #
-FROM golang:1.18 as builder
-#FROM alpine:latest
+#FROM golang:1.18 as builder
+FROM golang:1.18-alpine
 
 ARG BINARY_PATH=/app
 
@@ -24,8 +24,7 @@ WORKDIR $BINARY_PATH
 RUN CGO_ENABLED=0 go build -mod=vendor -o bankService
 
 RUN chmod +x bankService
-RUN pwd
-RUN ls
+
 CMD [ "./bankService" ]
 
 ###### Production Image - tiny One !

@@ -18,7 +18,7 @@ func ProjectRootDir() string {
 
 var (
 	dbTestClientConfig = repository.MySqlConfig{
-		DbServerAddr: "mysql_data",
+		DbServerAddr: "mysqldb",
 		DbServerPort: "3306",
 		DbName:       "webServiceDB",
 		DbUser:       "root",
@@ -40,7 +40,7 @@ func main() {
 		DbUser:       os.Getenv("MYSQL_USER"),
 		DbPass:       os.Getenv("MYSQL_PASS"),
 	}
-	//dbClientConfig = dbTestClientConfig
+	dbClientConfig = dbTestClientConfig
 	fmt.Println("Db Config", dbClientConfig)
 	appDbClient := repository.NewRepositoryMySqlDB(dbClientConfig)
 
