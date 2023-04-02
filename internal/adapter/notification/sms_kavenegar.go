@@ -23,11 +23,11 @@ func (notify KaveNegarNotifyMsg) SendMessage(sender string, receptor []string, m
 	if res, err := api.Message.Send(sender, receptor, message, nil); err != nil {
 		switch err := err.(type) {
 		case *kavenegar.APIError:
-			fmt.Println(err.Error())
+			fmt.Println("[KaveNegarApiCall]" + err.Error())
 		case *kavenegar.HTTPError:
-			fmt.Println(err.Error())
+			fmt.Println("[KaveNegarApiCall]" + err.Error())
 		default:
-			fmt.Println(err.Error())
+			fmt.Println("[KaveNegarApiCall]" + err.Error())
 		}
 	} else {
 		for _, r := range res {

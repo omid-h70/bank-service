@@ -35,7 +35,9 @@ const (
 )
 
 func fixArabicPersianStrings(t *TransactionRequest) {
-
+	t.CardFromNum = helper.FixCardNumberString(t.CardFromNum)
+	t.CardToNum = helper.FixCardNumberString(t.CardToNum)
+	t.TransactionAmount = helper.FixCardNumberString(t.CardToNum)
 }
 
 func (a *AccountHandler) handleTransferCallBack(w http.ResponseWriter, r *http.Request) {
