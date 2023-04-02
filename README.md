@@ -61,6 +61,7 @@ it also supports Persian  Or Arabic Numbers like below but of course its and err
 ```
 
  ##### Report Request
+ this API will give you 3 tpos users within last 10 minutes
 ```curl -i --request GET 'http://localhost:8000/v1/report' ```
 you can give optional parameter as t like
 ```curl -i --request GET 'http://localhost:8000/v1/report?t=1000' ```
